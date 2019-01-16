@@ -1,0 +1,80 @@
+swagger: '2.0'
+info:
+  description: line_liff_translate API Document
+  version: 0.0.1
+  title: line_liff_translate REST APIs
+host: bmxgt-line-liff-lt.au-syd.mybluemix.net
+basePath: /
+tags:
+  - name: identify
+    description: 識別 APIs
+  - name: translate
+    description: 翻訳 APIs
+schemes:
+  - http
+  - https
+paths:
+  /languages:
+    get:
+      tags:
+        - identify
+      summary: 対応言語の一覧を取得する
+      description: 対応言語の一覧を取得する
+      responses:
+        '200':
+          description: 成功
+        '400':
+          description: エラー
+  /identify:
+    post:
+      tags:
+        - identify
+      summary: 言語を識別する
+      description: テキストからその言語を識別する
+      parameters:
+        - name: body
+          in: body
+          schema:
+            $ref: '#/definitions/IdentifyRequest'
+      responses:
+        '200':
+          description: 成功
+        '400':
+          description: エラー
+  /translate:
+    post:
+      tags:
+        - translate
+      summary: 言語を翻訳する
+      description: テキストを翻訳する
+      parameters:
+        - name: body
+          in: body
+          schema:
+            $ref: '#/definitions/TranslateRequest'
+      responses:
+        '200':
+          description: 成功
+        '400':
+          description: エラー
+definitions:
+  IdentifyRequest:
+    type: object
+    properties:
+      text:
+        type: string
+        description: テキスト
+        required: true
+  TranslateRequest:
+    type: object
+    properties:
+      text:
+        type: string
+        description: テキスト
+        required: true
+      source:
+        type: string
+        description: 翻訳前の言語
+      target:
+        type: string
+        description: 翻訳後の言語

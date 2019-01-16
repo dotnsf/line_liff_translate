@@ -1,0 +1,284 @@
+swagger: '2.0'
+info:
+  description: API Document
+  version: 0.0.1
+  title: Platform REST API
+host: careplan.mybluemix.net
+basePath: /
+tags:
+  - name: document
+    description: APIs for document(s)
+  - name: cognitive
+    description: APIs for cognitive
+schemes:
+  - http
+  - https
+paths:
+  /document/{id}:
+    get:
+      tags:
+        - document
+      summary: Get single document
+      description: Get single document from id.
+      parameters:
+        - name: id
+          type: string
+          in: path
+          description: id of document
+          required: true
+      responses:
+        '200':
+          description: Success
+        '401':
+          description: Access error
+    delete:
+      tags:
+        - document
+      summary: Delete single document
+      description: Delete single document from id.
+      parameters:
+        - name: id
+          type: string
+          in: path
+          description: id of document
+          required: true
+      responses:
+        '200':
+          description: Success
+        '401':
+          description: Access error
+  /documents:
+    get:
+      tags:
+        - document
+      summary: Get all documents
+      description: Get all documents
+      produces:
+        - application/json
+      parameters:
+        - name: limit
+          type: string
+          in: query
+          description: limit
+        - name: offset
+          type: string
+          in: query
+          description: offset
+      responses:
+        '200':
+          description: Success
+        '401':
+          description: Access error
+    delete:
+      tags:
+        - document
+      summary: Delete specified documents
+      description: Delete specified documents
+      produces:
+        - application/json
+      parameters:
+        - name: docs
+          in: body
+          schema:
+            $ref: '#/definitions/DocsRequest'
+      responses:
+        '200':
+          description: Success
+        '401':
+          description: Access error
+  /query:
+    get:
+      tags:
+        - document
+      summary: Query documents
+      description: Query documents with keywords
+      produces:
+        - application/json
+      parameters:
+        - name: category
+          type: string
+          in: query
+          description: category
+        - name: task
+          type: string
+          in: query
+          description: task
+        - name: target
+          type: string
+          in: query
+          description: target
+        - name: limit
+          type: string
+          in: query
+          description: limit
+        - name: offset
+          type: string
+          in: query
+          description: offset
+      responses:
+        '200':
+          description: Success
+        '401':
+          description: Access error
+  /uploadXLS2:
+    post:
+      tags:
+        - document
+      summary: Upload Training sheet with type 2
+      description: Upload Training sheet with type 2
+      produces:
+        - application/json
+      consumes:
+        - multipart/form-data
+      parameters:
+        - name: file
+          in: formData
+          type: file
+          required: true
+          description: Excel file
+        - name: resetdata
+          in: formData
+          type: string
+          description: true for resetting current data
+      responses:
+        '200':
+          description: Success
+        '401':
+          description: Access error
+  /uploadAssessment:
+    post:
+      tags:
+        - cognitive
+      summary: Upload Assessment sheet
+      description: Upload Assessment sheet
+      produces:
+        - application/json
+      consumes:
+        - multipart/form-data
+      parameters:
+        - name: file
+          in: formData
+          type: file
+          required: true
+          description: Excel file
+      responses:
+        '200':
+          description: Success
+        '401':
+          description: Access error
+  /classify:
+    post:
+      tags:
+        - cognitive
+      summary: Classify text into categories
+      description: Classify text into categories
+      produces:
+        - application/json
+      parameters:
+        - name: text
+          in: formData
+          type: string
+          required: true
+          description: text string to be classified
+        - name: idx
+          in: formData
+          type: string
+          description: 1(default) for identifier-1, 2 for identifier-2
+      responses:
+        '200':
+          description: Success
+        '401':
+          description: Access error
+  /trainingNLC:
+    get:
+      tags:
+        - cognitive
+      summary: Get training status from Watson NLC
+      description: Get training status from Watson NLC
+      produces:
+        - application/json
+      responses:
+        '200':
+          description: Success
+        '401':
+          description: Access error
+    post:
+      tags:
+        - cognitive
+      summary: Post data into Watson NLC from current documents
+      description: Post data into Watson NLC from current documents
+      produces:
+        - application/json
+      responses:
+        '200':
+          description: Success
+        '401':
+          description: Access error
+    delete:
+      tags:
+        - cognitive
+      summary: Delete training corpus from Watson NLC
+      description: Delete training corpus from Watson NLC
+      produces:
+        - application/json
+      responses:
+        '200':
+          description: Success
+        '401':
+          description: Access error
+  /downloadAsXLS:
+    post:
+      tags:
+        - cognitive
+      summary: Download .xls Excel format
+      description: Download .xls Excel format
+      produces:
+        - application/zip
+      parameters:
+        - name: tasks_targets
+          in: body
+          schema:
+            $ref: '#/definitions/DownloadsRequest'
+        - name: answers_c
+          in: body
+          type: array
+          description: answers from assessment sheet column C
+        - name: answers_d
+          in: body
+          type: array
+          description: answers from assessment sheet column D
+        - name: answers_e
+          in: body
+          type: array
+          description: answers from assessment sheet column E
+      responses:
+        '200':
+          description: Success
+        '401':
+definitions:
+  DocsRequest:
+    type: array
+    items:
+      $ref: '#/definitions/DocRequest'
+  DocRequest:
+    type: object
+    properties:
+      _id:
+        type: string
+        description: document id
+      _rev:
+        type: string
+        description: document revision id
+  DownloadsRequest:
+    type: array
+    items:
+      $ref: '#/definitions/DownloadRequest'
+  DownloadRequest:
+    type: object
+    properties:
+      task:
+        type: string
+        description: task
+      target:
+        type: string
+        description: target

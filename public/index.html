@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8"/>
+<title>Translator</title>
+<script type="text/javascript" src="//code.jquery.com/jquery-2.2.4.min.js"></script>
+<link href="//maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css" rel="stylesheet"/>
+<script src="//maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js"></script>
+<script src="https://d.line-scdn.net/liff/1.0/sdk.js"></script>
+<meta name="viewport" content="width=device-width,initial-scale=1"/>
+<meta name="apple-mobile-web-app-capable" content="yes"/>
+
+<style type="text/css">
+html, body{
+  text-align: center;
+  background-color: #fafafa;
+  font-size: 20px;
+  color: #333;
+}
+</style>
+</head>
+<body>
+  <table class="table">
+    <tr><td>
+      <select class="form-control" id="source">
+      </select>
+    </td><td>の</td></tr>
+    <tr><td>
+      <input type="text" class="form-control" placeholder="" id="text" value=""/>
+    </td><td>を</td></tr>
+    <tr><td>
+      <select class="form-control" id="target">
+      </select>
+    </td><td><input type="button" class="btn btn-xs btn-primary" id="translate-btn" value="で送信" onClick="send()"/></td></tr>
+  </table>
+</div>
+
+<script>
+$(function(){
+  $.ajax({
+    type: 'GET',
+    url: '/languages',
+    success: function( result ){
+      //console.log( result );
+      if( result && result.status && result.languages ){
+        result.languages.forEach( function( language ){
+          var option = '<option value="' + language.language + '">' + language.name + '</option>';
+          $('#source').append( option );
+          $('#target').append( option );
+        });
+
+        $('#source').val( 'ja' );
+        $('#target').val( 'en' );
+      }
+    },
+    error: function( xhr, err, status ){
+      console.log( err );
+    }
+  });
+
+  liff.init(
+    data => {},
+    err => {
+      console.log( err );
+    }
+  );
+});
+
+function send(){
+  var text = $('#text').val();
+  if( text ){
+    var source = $('#source').val();
+    var target = $('#target').val();
+    var obj = { text: text, source: source, target: target };
+    $.ajax({
+      type: 'POST',
+      url: '/translate',
+      data: obj,
+      success: function( data ){
+        console.log( data );
+        if( data.status && data.translations && data.translations.length > 0 ){
+          var translation = data.translations[0].translation;
+          console.log( '-> ' + translation );
+
+          var message = {
+            type: 'text',
+            text: translation
+          };
+          liff.sendMessages([
+            message
+          ]).then( () => {
+            liff.closeWindow();
+          }).catch( ( err ) => {
+            console.log( 'error', err );
+          });
+        }
+      },
+      error: function( xhr, err, status ){
+        console.log( err );
+      }
+    });
+  }
+}
+</script>
+</body>
+</html>
